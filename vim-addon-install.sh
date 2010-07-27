@@ -11,7 +11,7 @@ echo "Starting up."
 
 # arg should not have '.vim', it will be added later
 PLUGIN_NAME=$1
-TEMP_FILE="temp.html"
+TEMP_FILE=$(mktemp)
 
 # define dirs
 VIM_PLUGIN_DIR="$HOME/.vim/plugin/"
