@@ -5,6 +5,8 @@ to install the plugin $PLUGIN_NAME.
 
 This script definitely works with .vim files, and works with
 tar.gz and .zip files that are created such that they can
-be unpacked in the .vim directory.
+be unpacked in the .vim directory. If the .vim file is specified
+as a color scheme on vim.org, then it is automatically
+installed to the colors folder.
 
 This script is still experimental, so use with discretion.
