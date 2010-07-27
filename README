@@ -1,0 +1,10 @@
+This is a short script I wrote to automate the installation
+of vim addons from the vim.org website. Use it as follows:
+    ./vim-addon-install.sh $PLUGIN_NAME
+to install the plugin $PLUGIN_NAME.
+
+This script definitely works with .vim files, and works with
+tar.gz and .zip files that are created such that they can
+be unpacked in the .vim directory.
+
+This script is still experimental, so use with discretion.
