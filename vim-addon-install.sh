@@ -17,6 +17,10 @@ fi
 
 echo "Starting up."
 
+
+# determine whether or not to use wget
+wget_installed=$(type -P wget &>/dev/null)
+
 # arg should not have '.vim', it will be added later
 PLUGIN_NAME=$1
 TEMP_FILE=$(mktemp)
@@ -35,7 +39,11 @@ URL="http://www.google.com/cse?cx=partner-pub-3005259998294962:bvyni59kjr1&ie=IS
 
 # fetch the HTML for the google search result
 echo "Looking for plugin."
-wget --quiet -O $TEMP_FILE "$URL" -U "$USER_AGENT"
+if $wget_installed ; then
+    wget --quiet -O $TEMP_FILE "$URL" -U "$USER_AGENT"
+else
+    curl -S -o $TEMP_FILE "$URL" -U "$USER_AGENT"
+fi
 
 
 # use grep to find the first script url
@@ -55,7 +63,11 @@ echo "Found candidate."
 
 # go to script page of first result
 echo "Fetching plugin page."
-wget --quiet -O $TEMP_FILE "$FIRST_RESULT" -U "$USER_AGENT"
+if $wget_installed ; then
+    wget --quiet -O $TEMP_FILE "$FIRST_RESULT" -U "$USER_AGENT"
+else
+    curl -S -o $TEMP_FILE "$FIRST_RESULT" -U "$USER_AGENT"
+fi
 
 # find the first download link (most recent version of plugin)
 echo "Grabbing download link."
@@ -70,11 +82,19 @@ rm $TEMP_FILE
 
 # download
 echo "Downloading file."
-wget --quiet -O "$FILE_NAME" "$DOWNLOAD_URL" -U "$USER_AGENT"
+if $wget_installed ; then
+    wget --quiet -O $FILE_NAME "$DOWNLOAD_URL" -U "$USER_AGENT"
+else
+    curl -S -o $FILE_NAME "$DOWNLOAD_URL" -U "$USER_AGENT"
+fi
 
 echo $FILE_NAME
+# check to see if we have a *vim file. this case is easy
 if [[ $FILE_NAME == *.vim ]]
 then
+    # check to see if the script type we got earlier 
+    # was  a color file. if so, then copy to the 
+    # color directory
     if [[ $SCRIPT_TYPE == *color* ]]
     then
         echo "Copying color scheme to colors directory."
@@ -84,22 +104,28 @@ then
         cp $FILE_NAME $VIM_PLUGIN_DIR
     fi
 else
+    # other cases, tar or zip
+    # these are sketchy because they assume that
+    # the file was packaged in such a way that it can just
+    # be unpacked in the vim dir and be fine. this is
+    # usually the case but not always.
+    # TODO: grab structure of archive and determine what
+    # to do from there.
     if [[ $FILE_NAME == *tar* ]]
     then
         echo "Unpacking and adding to plugin directory."
         CURRENT_DIR=$(pwd)
-        cd $VIM_DIR
+        cd "$VIM_DIR"
         tar xvf "$CURRENT_DIR/$FILE_NAME"
-        cd $CURRENT_DIR
+        cd "$CURRENT_DIR"
     else
         if [[ $FILE_NAME == *zip ]]
         then
             echo "Unpacking and adding to plugin directory."
             CURRENT_DIR=$(pwd)
-            cd $VIM_DIR
+            cd "$VIM_DIR"
             unzip "$CURRENT_DIR/$FILE_NAME"
-            rm "$FILE_NAME"
-            cd $CURRENT_DIR
+            cd "$CURRENT_DIR"
         else
             echo "Unknown file type, exiting."
         fi
