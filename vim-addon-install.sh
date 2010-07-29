@@ -90,47 +90,47 @@ fi
 
 echo $FILE_NAME
 # check to see if we have a *vim file. this case is easy
-if [[ $FILE_NAME == *.vim ]]
-then
-    # check to see if the script type we got earlier 
-    # was  a color file. if so, then copy to the 
-    # color directory
-    if [[ $SCRIPT_TYPE == *color* ]]
-    then
-        echo "Copying color scheme to colors directory."
-        cp $FILE_NAME $VIM_COLORS_DIR
-    else
-        echo "Copying file to plugin directory."
-        cp $FILE_NAME $VIM_PLUGIN_DIR
-    fi
-else
-    # other cases, tar or zip
-    # these are sketchy because they assume that
-    # the file was packaged in such a way that it can just
-    # be unpacked in the vim dir and be fine. this is
-    # usually the case but not always.
-    # TODO: grab structure of archive and determine what
-    # to do from there.
-    if [[ $FILE_NAME == *tar* ]]
-    then
+
+case $FILE_NAME in
+    *.vim )
+        # check to see if the script type we got earlier 
+        # was  a color file. if so, then copy to the 
+        # color directory
+        if [[ $SCRIPT_TYPE == *color* ]]
+        then
+            echo "Copying color scheme to colors directory."
+            cp $FILE_NAME $VIM_COLORS_DIR
+        else
+            echo "Copying file to plugin directory."
+            cp $FILE_NAME $VIM_PLUGIN_DIR
+        fi
+        ;;
+    *.tar )
         echo "Unpacking and adding to plugin directory."
         CURRENT_DIR=$(pwd)
         cd "$VIM_DIR"
         tar xvf "$CURRENT_DIR/$FILE_NAME"
         cd "$CURRENT_DIR"
-    else
-        if [[ $FILE_NAME == *zip ]]
-        then
-            echo "Unpacking and adding to plugin directory."
-            CURRENT_DIR=$(pwd)
-            cd "$VIM_DIR"
-            unzip "$CURRENT_DIR/$FILE_NAME"
-            cd "$CURRENT_DIR"
-        else
-            echo "Unknown file type, exiting."
-        fi
-    fi
-fi
+        ;;
+    *.tar.gz )
+        echo "Unpacking and adding to plugin directory."
+        CURRENT_DIR=$(pwd)
+        cd "$VIM_DIR"
+        tar xvjf "$CURRENT_DIR/$FILE_NAME"
+        cd "$CURRENT_DIR"
+        ;;
+    *.vba )
+        echo "Unpacking and adding to plugin directory."
+        vim -c "source %" -c "q" "$FILE_NAME"
+        ;;
+    *.zip )
+        echo "Unpacking and adding to plugin directory."
+        CURRENT_DIR=$(pwd)
+        cd "$VIM_DIR"
+        unzip "$CURRENT_DIR/$FILE_NAME"
+        cd "$CURRENT_DIR"
+        ;;
+esac
 
 rm "$FILE_NAME"
 
