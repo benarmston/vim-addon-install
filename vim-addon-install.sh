@@ -112,14 +112,13 @@ case $FILE_NAME in
         tar xvf "$CURRENT_DIR/$FILE_NAME"
         cd "$CURRENT_DIR"
         ;;
-# Would like to use this code, but didn't work
-#    *.tar.gz )
-#        echo "Unpacking and adding to plugin directory."
-#        CURRENT_DIR=$(pwd)
-#        cd "$VIM_DIR"
-#        tar xvjf "$CURRENT_DIR/$FILE_NAME"
-#        cd "$CURRENT_DIR"
-#        ;;
+    *.tar.gz )
+        echo "Unpacking and adding to plugin directory."
+        CURRENT_DIR=$(pwd)
+        cd "$VIM_DIR"
+        tar xvzf "$CURRENT_DIR/$FILE_NAME"
+        cd "$CURRENT_DIR"
+        ;;
     *.vba )
         echo "Unpacking and adding to plugin directory."
         vim -c "source %" -c "q" "$FILE_NAME"
